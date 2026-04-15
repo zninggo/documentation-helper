@@ -11,7 +11,7 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_tavily import (TavilyCrawl, TavilyExtract, TavilyMap,
                               TavilySearch)
 
-from logger import Colors, log_header, log_info
+from logger import Colors, log_header, log_info, log_success
 
 load_dotenv(override=True)
 
@@ -45,6 +45,8 @@ tavily_crawl_tool = TavilyCrawl()
 print("依赖加载完成...")
 
 
+python_langchain_entry = 'https://docs.langchain.com/oss/python/langchain/overview'
+
 async def main():
     """主要的异步函数来协调整个过程。"""
     log_header("文档摄取管道")
@@ -53,13 +55,15 @@ async def main():
 
     response = tavily_crawl_tool.invoke(
         {
-            "url": "https://docs.langchain.com/oss/python/langchain/overview",
+            "url": python_langchain_entry,
             "depth": "advanced",
             "max_depth": 1,
         }
     )
 
-    print(response.get("results"))
+    log_success(
+        f"Tavily Crawl: 从 {python_langchain_entry} 入口处 爬取到 {len(response['results'])} 个链接入口 "
+    )
 
     all_docs = [
         Document(
