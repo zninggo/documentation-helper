@@ -6,30 +6,14 @@ readme = "README.md"
 requires-python = ">=3.11,<3.12"
 
 dependencies = [
-    "beautifulsoup4",
-    "black",
-    "tiktoken",
-    "openai",
-    "unstructured",
-    "nltk",
-    "fastapi",
-    "jinja2",
-    "uvicorn",
-    "streamlit",
-    "streamlit-chat",
-    "tqdm",
-    "isort",
-    "langchainhub",
-    "firecrawl-py",
-    "langchain-community",
-    "langsmith",
-    "pillow",
-    "langchain-tavily",
-    "langchain-pinecone",
-    "certifi",
-    "langchain-chroma",
-    "python-dotenv",
-    "ipykernel",
+    "black>=26.3.1",
+    "certifi>=2026.2.25",
+    "isort>=8.0.1",
+    "langchain-chroma>=1.1.0",
+    "langchain-ollama>=1.1.0",
+    "langchain-openai>=1.1.13",
+    "langchain-tavily>=0.2.17",
+    "python-dotenv>=1.2.2",
 ]
 
 
