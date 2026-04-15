@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
-from langchain_tavily import (TavilyCrawl, TavilyExtract, TavilyMap,
-                              TavilySearch)
+from langchain_tavily import TavilyCrawl, TavilyExtract, TavilyMap
 
 from logger import Colors, log_header, log_info, log_success
 
@@ -42,10 +41,13 @@ tavily_extract_tool = TavilyExtract(
 
 tavily_crawl_tool = TavilyCrawl()
 
+tavily_map = TavilyMap()
+
 print("依赖加载完成...")
 
 
-python_langchain_entry = 'https://docs.langchain.com/oss/python/langchain/overview'
+python_langchain_entry = "https://docs.langchain.com/oss/python/langchain/overview"
+
 
 async def main():
     """主要的异步函数来协调整个过程。"""
