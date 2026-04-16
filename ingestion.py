@@ -50,7 +50,7 @@ tavily_map = TavilyMap()
 print("依赖加载完成...")
 
 
-python_langchain_entry = "https://docs.langchain.com/oss/python/langchain/overview"
+python_langchain_entry = "https://docs.python.org/zh-cn/3.11/library/"
 
 
 async def index_documents_async(documents: List[Document], batch_size: int = 50):
@@ -104,9 +104,13 @@ async def main():
         {
             "url": python_langchain_entry,
             "depth": "advanced",
-            "max_depth": 5,
+            "max_depth": 2,
+            "breadth":500,
+            "limit":5000
         }
     )
+
+    print(response)
 
     log_success(
         f"Tavily Crawl: 从 {python_langchain_entry} 入口处 爬取到 {len(response['results'])} 个链接入口 "
@@ -124,8 +128,8 @@ async def main():
     # Split documents into chunks
     log_header("文档分块")
 
-    chunk_overlap = 50
-    chunk_size = 400
+    chunk_overlap = 100
+    chunk_size = 1000
     log_info(
         f"✂️  文本分块: 处理具有 {chunk_size} 块大小和 {chunk_overlap} 重叠的 {len(all_docs)} 文档",
         Colors.YELLOW,
@@ -140,7 +144,7 @@ async def main():
     )
 
     # 异步处理文档 存储向量数据库
-    await index_documents_async(chunks)
+    await index_documents_async(chunks, 500)
 
     log_header("任务完成")
     log_success("🎉 文档存储向量数据库完成!")
