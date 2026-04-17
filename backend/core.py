@@ -82,7 +82,8 @@ def llm_run(query: str) -> Dict[str, Any]:
     """)
 
     """
-        如果你在检索方面遇到困难就说出来或者不知道怎么回答就说不知道
+        如果你不知道问题的答案你就说不知道
+        如果你在检索方面遇到困难就说出来或者不知道怎么回答就说不知道 (模型问题本地模型还是不太行)
     """
 
     agent = create_agent(
@@ -111,6 +112,7 @@ def llm_run(query: str) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    result = llm_run("什么是deepagents")
+    result = llm_run("什么是 deepagents")
     log_header("llm回答的内容")
+    print(result.get('content'))
     log_success(result.get("answer"))
