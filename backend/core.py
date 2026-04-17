@@ -12,6 +12,13 @@ from langchain_openai import ChatOpenAI
 
 from logger import log_header, log_info, log_success
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_DIR = BASE_DIR / ".chroma_db"
+print(DB_DIR)
+print(Path(__file__).parent.parent / ".chroma_db")
+
 load_dotenv(override=True)
 # 配置 llm 相关内容
 api_key = os.getenv("GLM_API_KEY")
@@ -28,8 +35,8 @@ log_success("嵌入模型已加载...")
 vector_store = Chroma(
     embedding_function=embeddings,
     collection_name="langchain_docs",
-    # 困扰我一天的问题找到了 向量数据库路径没有指定正确
-    persist_directory="../.chroma_db",
+    # 困扰我一天的问题找到了 向量数据库路径没有指定正确 streamlit 没有拿到metadata信息也是因为路径问题
+    persist_directory=str(DB_DIR),
 )
 
 log_success("Chroma 已加载...")
@@ -62,7 +69,6 @@ def retrieve_context(query: str):
     )
     return serialized, retrieved_docs
 
-
 def llm_run(query: str) -> Dict[str, Any]:
     """
     通过rag检索 回答用户的问题
@@ -92,11 +98,8 @@ def llm_run(query: str) -> Dict[str, Any]:
 
     # response = agent.invoke({"messages": [{"role": "user", "content": query}]})
 
-    userMsg = HumanMessage(query)
-    response = agent.invoke({"messages": [userMsg]})
+    response = agent.invoke({"messages": [ HumanMessage(query)]})
 
-    # print(response["messages"][-1])
-    # print(response["messages"][-1].content)
     answer = response["messages"][-1].content
     content = []
 

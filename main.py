@@ -52,9 +52,8 @@ if prompt:
         try:
             with st.spinner("检索文档并生成答案…"):
                 result = llm_run(prompt)
-                print(result.get('content'))
-                answer = result.get("answer",'').strip() or '没有回复~'
-                sources = _format_sources(result.get("content",[]))
+                answer = result.get("answer", "").strip() or "没有回复~"
+                sources = _format_sources(result.get("content", []))
                 st.markdown(answer)
 
                 if sources:
@@ -65,8 +64,6 @@ if prompt:
             st.session_state.messages.append(
                 {"role": "assistant", "content": answer, "sources": sources}
             )
-
-
 
         except Exception as e:
             st.error("Failed to generate a response.")
