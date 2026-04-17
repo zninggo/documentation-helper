@@ -10,7 +10,7 @@ from langchain_core.tools import tool
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_openai import ChatOpenAI
 
-from logger import log_info, log_success
+from logger import log_header, log_info, log_success
 
 load_dotenv(override=True)
 # 配置 llm 相关内容
@@ -28,14 +28,13 @@ log_success("嵌入模型已加载...")
 vector_store = Chroma(
     embedding_function=embeddings,
     collection_name="langchain_docs",
-    persist_directory="./.chroma_db",
+    # 困扰我一天的问题找到了 向量数据库路径没有指定正确
+    persist_directory="../.chroma_db",
 )
 
 log_success("Chroma 已加载...")
 
-llm = ChatOllama(
-    model=os.getenv("OLLAMA_MODEL")
-)
+llm = ChatOllama(model=os.getenv("OLLAMA_MODEL"))
 
 # chat_model = ChatOpenAI(
 #     model=model,
@@ -54,14 +53,13 @@ def retrieve_context(query: str):
     """这是一个检索文档的工具 用于回答用户关于Langchain相关的问题"""
 
     log_success("开始检索数据库~~~")
-    retrieved_docs = vector_store.similarity_search(query, k=10)
+    retrieved_docs = vector_store.similarity_search(query, k=3)
     # vector_store.as_retriever()
+    # retrieved_docs = vector_store.as_retriever().invoke(query, k=4)
     serialized = "\n\n".join(
         f'source: {doc.metadata.get("source","unknown")}\n\ncontent: {doc.page_content}'
         for doc in retrieved_docs
     )
-    log_info(serialized)
-
     return serialized, retrieved_docs
 
 
@@ -78,20 +76,23 @@ def llm_run(query: str) -> Dict[str, Any]:
     """
 
     sys_message = SystemMessage("""
-        你是一个乐于助人的智能客服, 帮助解答用户关于langchain相关的问题
+        你是一个乐于助人而且非常有帮助的智能客服, 帮助解答用户关于 langchain 相关的问题
         你需要通过工具检索相关的知识
         你需要使用查阅到的资料进行回答
     """)
 
     """
-    如果使用 如果你在检索方面遇到困难就说出来/不知道怎么回答就说不知道会遇到空回问题(content='') 是我向量数据库问题
+        如果你在检索方面遇到困难就说出来或者不知道怎么回答就说不知道
     """
 
     agent = create_agent(
         model=chat_model, tools=[retrieve_context], system_prompt=sys_message
     )
 
-    response = agent.invoke({"messages": [{"role": "user", "content": query}]})
+    # response = agent.invoke({"messages": [{"role": "user", "content": query}]})
+
+    userMsg = HumanMessage(query)
+    response = agent.invoke({"messages": [userMsg]})
 
     # print(response["messages"][-1])
     # print(response["messages"][-1].content)
@@ -110,5 +111,6 @@ def llm_run(query: str) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    result = llm_run("什么是DeepAgents")
+    result = llm_run("什么是deepagents")
+    log_header("llm回答的内容")
     log_success(result.get("answer"))

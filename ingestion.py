@@ -36,7 +36,7 @@ vector_store = Chroma(
     persist_directory="./.chroma_db",
 )
 
-log_success("向量数据库创建完成...")
+log_success("向量数据库创建/加载完成...")
 
 tavily_extract_tool = TavilyExtract(
     extract_depth="advanced",
@@ -47,10 +47,13 @@ tavily_crawl_tool = TavilyCrawl()
 
 tavily_map = TavilyMap()
 
-print("依赖加载完成...")
+log_success("依赖加载完成...")
 
 
-python_langchain_entry = "https://docs.python.org/zh-cn/3.11/library/"
+# python_langchain_entry = "https://opencode.ai/docs/zh-cn"
+# python_langchain_entry = "https://docs.python.org/zh-cn/3.11/library/"
+# python_langchain_entry = "https://nodejs.org/docs/latest/api/"
+python_langchain_entry = "https://docs.langchain.com/oss/python/langchain/overview"
 
 
 async def index_documents_async(documents: List[Document], batch_size: int = 50):
@@ -100,17 +103,20 @@ async def main():
 
     log_info("🗺️ TavilyCrawl：开始抓取文档站点", color=Colors.PURPLE)
 
-    response = tavily_crawl_tool.invoke(
-        {
-            "url": python_langchain_entry,
-            "depth": "advanced",
-            "max_depth": 2,
-            "breadth":500,
-            "limit":5000
-        }
-    )
+    response = None
+    try:
+        response = tavily_crawl_tool.invoke(
+            {
+                "url": python_langchain_entry,
+                "max_depth": 5,
+                "max_breadth": 100,
+                "limit": 500,
+            }
+        )
 
-    print(response)
+    except Exception as e:
+
+        print(e)
 
     log_success(
         f"Tavily Crawl: 从 {python_langchain_entry} 入口处 爬取到 {len(response['results'])} 个链接入口 "
@@ -118,18 +124,19 @@ async def main():
 
     all_docs = [
         Document(
-            page_content=result.get("raw_content"),
+            page_content=result.get("raw_content", ""),
             metadata={"source": result.get("url")},
         )
         for result in response.get("results")
+        if result.get("raw_content") is not None
     ]
 
     # print(all_docs)
     # Split documents into chunks
     log_header("文档分块")
 
-    chunk_overlap = 100
-    chunk_size = 1000
+    chunk_overlap = 400
+    chunk_size = 2000
     log_info(
         f"✂️  文本分块: 处理具有 {chunk_size} 块大小和 {chunk_overlap} 重叠的 {len(all_docs)} 文档",
         Colors.YELLOW,
